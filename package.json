@@ -1,5 +1,5 @@
 {
-  "name": "@o-hahn/node-red-contrib-camerapi",
+  "name": "@claus-br/node-red-contrib-camerapi",
   "version": "1.0.0",
   "description": "Node-RED node for taking photos on a Raspberry Pi using picamera2 (libcamera-based camera stack)",
   "license": "Apache-2.0",
@@ -24,18 +24,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/O-Hahn/node-red-contrib-camerapi.git"
+    "url": "git+https://github.com/Claus-BR/node-red-contrib-camerapi.git"
   },
   "node-red": {
     "nodes": {
       "camerapi": "camerapi.js"
     }
   },
-  "author": "Olaf Hahn <olaf_hahn@at.ibm.com>",
+  "author": "Claus Winther <Claus.Winther@br-automation.com>",
   "bugs": {
-    "url": "https://github.com/O-Hahn/node-red-contrib-camerapi/issues"
+    "url": "https://github.com/Claus-BR/node-red-contrib-camerapi/issues"
   },
-  "homepage": "https://github.com/O-Hahn/node-red-contrib-camerapi#readme",
+  "homepage": "https://github.com/Claus-BR/node-red-contrib-camerapi#readme",
   "directories": {
     "lib": "lib"
   }
