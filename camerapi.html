@@ -47,13 +47,7 @@
 	     <select id="node-input-fileformat">
             <option value="jpeg">JPEG</option>
             <option value="png">PNG</option>
-            <option value="gif">GIF</option>
             <option value="bmp">BMP</option>
-            <option value="yuv">YUV</option>
-            <option value="rgb">RGB</option>
-            <option value="rgba">RGBA</option>
-            <option value="bgr">BGR</option>
-            <option value="bgra">BGRA</option>
         </select>
     </div>
     <div class="form-row node-input-resolution">
@@ -111,29 +105,7 @@
         &nbsp;<label for="node-input-quality" style="width: 80px;"><span data-i18n="camerapi.label.quality"></span></label>
         <input type="text" style="width: 60px" id="node-input-quality" data-i18n="[placeholder]camerapi.placeholder.quality">
     </div>
-   <div class="form-row node-input-imageeffect">
-        <label for="node-input-imageeffect"><i class="fa fa-camera"></i> <span data-i18n="camerapi.label.imageeffect"></span></label>
-        <select id="node-input-imageeffect">
-            <option value="none">none</option>
-            <option value="negative">negative</option>
-            <option value="sketch">sketch</option>
-            <option value="denoise">denoise</option>
-            <option value="emboss">emboss</option>
-            <option value="oilpaint">oilpaint</option>
-            <option value="hatch">hatch</option>
-            <option value="gpen">gpen</option>
-            <option value="pastel">pastel</option>
-            <option value="watercolor">watercolor</option>
-            <option value="film">film</option>
-            <option value="blur">blur</option>
-            <option value="saturation">saturation</option>
-            <option value="washedout">washedout</option>
-            <option value="cartoon">cartoon</option>
-            <option value="deinterlace1">deinterlace1</option>
-            <option value="deinterlace2">deinterlace2</option>
-        </select>
-    </div>
-    <div class="form-row node-input-iso">
+   <div class="form-row node-input-iso">
         <label for="node-input-iso"><i class="fa fa-camera"></i> <span data-i18n="camerapi.label.iso"></span></label>
         <select id="node-input-iso" style="width: 100px" >
             <option value="0">auto</option>
@@ -146,24 +118,13 @@
             <option value="800">800</option>
         </select>
     </div>
-    <div class="form-row">
+   <div class="form-row node-input-exposuremode">
         <label><i class="fa fa-camera"></i> <span data-i18n="camerapi.label.presets"></span></label>
 
         <label for="node-input-exposuremode" style="width: 80px;"><span data-i18n="camerapi.label.exposuremode"></span></label>
         <select id="node-input-exposuremode" style="width: 212px;">
             <option value="auto">auto</option>
-            <option value="night">night</option>
-            <option value="nightpreview">nightpreview</option>
-            <option value="backlight">backlight</option>
-            <option value="spotlight">spotlight</option>
-            <option value="sports">spots</option>
-            <option value="snow">snow</option>
-            <option value="beach">beach</option>
-            <option value="verylong">verylong</option>
-            <option value="fixedfps">fixedfps</option>
-            <option value="antishake">antishake</option>
-            <option value="fireworks">fireworks</option>
-            <!--option value="off">off</option>-->
+            <option value="manual">manual (uses ISO setting)</option>
         </select>
     </div>
     <div class="form-row">
@@ -172,25 +133,17 @@
         <label for="node-input-awb" style="width: 80px;"><span data-i18n="camerapi.label.awb"></span></label>
          <select id="node-input-awb" style="width: 212px;">
              <option value="auto">auto</option>
-             <option value="sunlight">sunlight</option>
+             <option value="daylight">daylight</option>
              <option value="cloudy">cloudy</option>
-             <option value="shade">shade</option>
              <option value="tungsten">tungsten</option>
              <option value="fluorescent">fluorescent</option>
              <option value="incandescent">incandescent</option>
-             <option value="flash">flash</option>
-             <option value="horizon">horizon</option>
+             <option value="indoor">indoor</option>
          </select>
     </div>
     <div class="form-row">
         <label for="node-input-agcwait"><i class="fa fa-camera"></i> <span data-i18n="camerapi.label.agcwait"></span></label>
-		<input type="text" style="width: 100px" id="node-input-agcwait" placeholder="0.0 to 1.0" >
- 
-        &nbsp;<label for="node-input-led" style="width: 60px; margin-left: 24px;"><i class="fa fa-camera"></i> <span data-i18n="camerapi.label.led"></span></label>
-	    <select style="width: 100px" id="node-input-led">
-            <option value="1" data-i18n="camerapi.options.on"></option>
-            <option value="0" data-i18n="camerapi.options.off"></option>
-	   </select>
+		<input type="text" style="width: 100px" id="node-input-agcwait" placeholder="0.0 to 5.0" >
     </div>  
     </br>
     <div class="form-row node-input-name">
@@ -201,7 +154,7 @@
 
 <script type="text/x-red" data-help-name="camerapi-takephoto">
     <p>Takes picture using the Raspberry Pi camera module.</p>
-    <p>Requires a Raspberry Pi camera module and picamera Python library</p>
+    <p>Requires a Raspberry Pi camera module and the <b>picamera2</b> Python library (libcamera-based stack).</p>
 
     <h3>Inputs</h3>
         <dl class="message-properties">
@@ -237,6 +190,7 @@
         </ol>
 
     <h3>Details</h3>
+        <p>This node uses <b>picamera2</b> (the libcamera-based replacement for the legacy picamera library) to capture still images from Raspberry Pi camera modules.</p>
         <p>File Mode indicates the operation mode, which can be:
             <ol type = "1" start = "0">
                 <li>Buffered mode - the raw image will be sent to the next node(s) in <code>msg.payload</code></li>
@@ -245,53 +199,26 @@
             </ol>
         </p>
         <p>File Name defines the name of the file in which the node will save the photo, if File Mode is "Custom file name".</p>
-        <p>File Default Path, when set to Yes (<code>msg.filedefpath = "1"</code>), will save all photos in the default folder (~/Pictures), therefore, make sure the directory is created and node-red process has permission to write files in the folder.</p>
+        <p>File Default Path, when set to Yes (<code>msg.filedefpath = "1"</code>), will save all photos in the default folder (~/Pictures).</p>
         <p>File Path specifies the path where photos are saved, when File Default Path is No (<code>msg.filedefpath = "0")</code>).</p>
-        <p>File Format defines the format of the file. The following formats are supported: JPEG (default), PNG, GIF, BMP, YUV, RGB, RGBA, BGR, BGRA.</p>
+        <p>File Format defines the format of the file. The following formats are supported: JPEG (default), PNG, BMP.</p>
         <p>Resolution, the image resolution in pixels.</p>
-        <p>Rotation, rotates the image (in degrees).</p>
+        <p>Rotation, rotates the image (in degrees). 0° and 180° use native libcamera transforms. 90° and 270° use a post-capture rotation (requires Pillow).</p>
         <p>Image Flip, flips image horizontally and vertically, independently.</p>
-        <p>Brightness ajusts the brightness of the camera as an number from 0 to 100 (default 50).</p>
-        <p>Contrast sets the contrast level as an number from -100 to 100 (default 0).</p>
-        <p>Sharpness adjusts the sharpness of the camera, a measure of the amount of post-processing to reduce or increase image sharpness. Ranges from -100 to 100 (default 0).</p>
-        <p>Quality is used to control JPEG compression (from 0 - low quality and high compression; to 100 - high quality and no compression). Quality is ignored by all other image formats but JPEG (default 80).</p>
-        <p>Image Effect defines the effect to by applied to the image. The following effects are defined, although not all of them are fully supported by every camera module:
-            <ul>
-                <li>none: no effect (default)</li>
-                <li>negative: invert the image colours</li>
-                <li>solarise: solarise the image</li>
-                <li>posterise: posterise the image</li>
-                <li>whiteboard: whiteboard effect</li>
-                <li>blackboard: blackboard effect</li>
-                <li>sketch: sketch effect</li>
-                <li>denoise: denoise the image</li>
-                <li>emboss: emboss the image</li>
-                <li>oilpaint: oil paint effect</li>
-                <li>hatch: hatch sketch effect</li>
-                <li>gpen: graphite sketch effect</li>
-                <li>pastel: pastel effect</li>
-                <li>watercolour: watercolour effect</li>
-                <li>film: film grain effect</li>
-                <li>blur: blur the image</li>
-                <li>saturation: colour saturate the image</li>
-                <li>colourswap: not fully implemented</li>
-                <li>washedout: not fully implemented</li>
-                <li>colourpoint: not fully implemented</li>
-                <li>colourbalance: not fully implemented</li>
-                <li>cartoon: not fully implemented</li>
-            </ul>
-        </p>
-        <p>ISO sets the apparent ISO setting of the camera (default auto). When set to auto, it will automatically determine a value according to image-taking conditions. When set to one of the ISO values, it will adjust the camera sensitivity accordingly.</p>
-        <p>Exposure mode, adjusts camera exposure mode with one of the presets, thus pre-defining the camera's sensitivity, speed and gain.</p>
-        <p>AWB mode sets the auto-white-balance, which adjusts the colour balance used by the camera. When set to auto (default), it will try to correct the colours in the image depending on the light conditions of the scene, producing images with more neutral colours.</p>
-        <p>Wait for AGC is the delay between camera initialization and shooting. Proper wait time is important to let the camera sensors adapt to the scene and set correct exposure (default 0.3s).</p>
-        <p>LED controls the state of the camera's LED via GPIO - "1" On and "0" Off (default "Off"). At the present moment, the camera's LED cannot be controlled on the Pi 3, which had GPIOs re-routed to the GPIO expander, but it's typically used on the Compute Module platform.</p>
-        
+        <p>Brightness adjusts the brightness of the camera as a number from 0 to 100 (default 50). Internally mapped to the libcamera Brightness control (-1.0 to 1.0).</p>
+        <p>Contrast sets the contrast level as a number from -100 to 100 (default 0). Internally mapped to the libcamera Contrast control.</p>
+        <p>Sharpness adjusts the sharpness as a number from -100 to 100 (default 0). Internally mapped to the libcamera Sharpness control.</p>
+        <p>Quality is used to control JPEG compression (from 0 - low quality; to 100 - high quality). Quality is ignored by all other image formats (default 80).</p>
+        <p>ISO sets the apparent ISO setting. When set to auto, the camera uses automatic exposure and gain. When set to a value (100-800), it maps to the libcamera AnalogueGain control (ISO/100).</p>
+        <p>Exposure mode: auto uses the camera's automatic exposure algorithm; manual disables auto-exposure and uses the ISO/gain setting.</p>
+        <p>AWB mode sets the auto-white-balance mode. Available options: auto, daylight, cloudy, tungsten, fluorescent, incandescent, indoor.</p>
+        <p>Wait for AGC is the delay between camera start and capture, allowing sensors to settle for proper exposure (default 1.0s).</p>
 
     <h3>Reference</h3>
         <ul>
-            <li><a href="https://www.raspberrypi.org/documentation/hardware/camera/README.md" target="_blank">Camera module v2</a></li>
-            <li><a href="https://picamera.readthedocs.io/en/release-1.13/index.html" target="_blank">picamera</a></li>
+            <li><a href="https://www.raspberrypi.com/documentation/computers/camera_software.html" target="_blank">Raspberry Pi Camera Software</a></li>
+            <li><a href="https://datasheets.raspberrypi.com/camera/picamera2-manual.pdf" target="_blank">picamera2 Manual</a></li>
+            <li><a href="https://github.com/raspberrypi/picamera2" target="_blank">picamera2 GitHub</a></li>
         </ul>
 </script>
 
@@ -313,11 +240,9 @@
             contrast: {value:"0", required:true},
             sharpness: {value:"0", required:true},
             quality: {value:"80", required:false},
-            imageeffect: {value:"none", required:true},
             exposuremode: {value:"auto", required:true}, 
             iso: {value:"0", required:true},
             agcwait: {value:"1.0", required:false},
-            led: {value:"0", required:false},
             awb: {value:"auto", required:false},
             name: {value:""}
         },

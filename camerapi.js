@@ -21,10 +21,8 @@ module.exports = function(RED) {
 	"use strict";
 
 	var settings = RED.settings;
-	var events = require("events");
 	var exec = require("child_process").exec;
 	var isUtf8 = require("is-utf8");
-	var bufMaxSize = 32768;  // Max serial buffer size, for inputs...
 
 
 	// CameraPI Take Photo Node
@@ -45,12 +43,10 @@ module.exports = function(RED) {
 		this.sharpness = config.sharpness;
 		this.brightness = config.brightness;
 		this.contrast = config.contrast;
-		this.imageeffect = config.imageeffect;
 		this.exposuremode = config.exposuremode;
 		this.iso = config.iso;
 		this.agcwait = config.agcwait;
 		this.quality = config.quality;
-		this.led = config.led;
 		this.awb = config.awb;
 		this.name =  config.name;
 		this.activeProcesses = {};
@@ -68,7 +64,7 @@ module.exports = function(RED) {
 			var localdir = __dirname;
 			var homedir = os.homedir();
 			var defdir = homedir + "/Pictures/";
-			var cl = "python " + localdir + "/lib/python/get_photo.py";
+			var cl = "python3 " + localdir + "/lib/python/get_photo.py";
 			var resolution;
 			var fileformat;
 			var filename;
@@ -79,10 +75,8 @@ module.exports = function(RED) {
 			var sharpness;
 			var brightness;
 			var contrast;
-			var imageeffect;
 			var agcwait;
 			var quality;
-			var led;
 			var awb;
 			var rotation;
 			var exposuremode;
@@ -263,18 +257,6 @@ module.exports = function(RED) {
 			}
 			cl += " " + sharpness;
 
-			// imageeffect
-			if ((msg.imageeffect) && (msg.imageeffect !== "")) {
-				imageeffect = msg.imageeffect;
-			} else {
-				if (node.imageeffect) {
-					imageeffect = node.imageeffect;
-				} else {
-					imageeffect = "none";	
-				}
-			}
-			cl += " " + imageeffect;
-
 			// exposure-mode
 			if ((msg.exposuremode) && (msg.exposuremode !== "")) {
 				exposuremode = msg.exposuremode;
@@ -323,18 +305,6 @@ module.exports = function(RED) {
 			}
 			cl += " " + quality;
 			
-			// led on/off
-			if ((msg.led) && (msg.led !== "")) {
-				led = msg.led;
-			} else {
-				if (node.led) {
-					led = node.led;
-				} else {
-					led = 0;					
-				}
-			}
-			cl += " " + led;
-
 			// awb
 			if ((msg.awb) && (msg.awb != "")) {
 				awb = msg.awb;
