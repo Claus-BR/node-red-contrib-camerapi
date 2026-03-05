@@ -27,16 +27,13 @@
 			<option value="0" data-i18n="picamera2.options.bufferedmode"></option>
 		</select>
 	</div>
+	<div id="autoname" class="form-row node-input-autoname">
+		 <label for="node-input-autoname"><i class="fa fa-tag"></i> <span data-i18n="picamera2.label.autoname"></span></label>
+		 <input type="text" id="node-input-autoname" data-i18n="[placeholder]picamera2.placeholder.autoname">
+	</div>
 	<div id="filename" class="form-row node-input-filename">
 		 <label for="node-input-filename"><i class="fa fa-tag"></i> <span data-i18n="picamera2.label.filename"></span></label>
 		 <input type="text" id="node-input-filename" data-i18n="[placeholder]picamera2.placeholder.filename">
-	</div>
-	<div id="filedefpath" class="form-row node-input-filedefpath">
-		 <label for="node-input-filedefpath"><i class="fa fa-folder"></i> <span data-i18n="picamera2.label.filedefpath"></span></label>
-		 <select id="node-input-filedefpath">
-			<option value="1" data-i18n="picamera2.options.yes"></option>
-			<option value="0" data-i18n="picamera2.options.no"></option>
-		</select>
 	</div>
 	<div id="filepath" class="form-row node-input-filepath">
 		 <label for="node-input-filepath"><i class="fa fa-folder"></i> <span data-i18n="picamera2.label.filepath"></span></label>
@@ -228,10 +225,10 @@
 		color: "#A6BBCF",
 		defaults: {
 			filemode: {value:"2", required:true},
+			autoname: {value:"image", required:false},
 			filename: {value:"", required:false},
-			filedefpath: {value:"1", required:true},
 			filepath: {value:"", required:false},
-			fileformat: {value:"jpeg", required:true},
+			fileformat: {value:"png", required:true},
 			resolution: {value:"10", required:true},
 			rotation : {value:"0", required:true},
 			fliph: {value:"0", required:true},
@@ -250,45 +247,30 @@
 		outputs:1,
 		icon: "photo.png",
 		oneditprepare: function() {
-			$("#node-input-filemode").change(function() {
-				var choose = $("#node-input-filemode").val();
-				console.log(choose);
-				if (choose == "0") {
-					console.log("Buffermode - yes");
+			function updateFileFields() {
+				var mode = $("#node-input-filemode").val();
+				if (mode == "0") {
+					// Buffered mode — show filepath + format only
+					$("#autoname").hide();
 					$("#filename").hide();
-					$("#node-input-filedefpath").val("1");
-					$("#node-input-filepath").val("");
-					$("#filedefpath").hide();
-					$("#filepath").hide();
-					$("#fileformat").hide();
-				} else if (choose == "2") {
-					console.log("Generate - yes");
+					$("#filepath").show();
+					$("#fileformat").show();
+				} else if (mode == "2") {
+					// Auto mode — show autoname, filepath, format
+					$("#autoname").show();
 					$("#filename").hide();
-					$("#node-input-filedefpath").val("1");
-					$("#node-input-filepath").val("");
-					$("#filedefpath").hide();
-					$("#filepath").hide();
-					$("#fileformat").hide();                    
+					$("#filepath").show();
+					$("#fileformat").show();
 				} else {
-					console.log("FileMode - yes");
+					// Custom mode — show filename, filepath, format
+					$("#autoname").hide();
 					$("#filename").show();
-					$("#filedefpath").show();
-					$("#filepath").hide();
+					$("#filepath").show();
 					$("#fileformat").show();
 				}
-			});
-			$("#node-input-filedefpath").change(function() {
-				var choose = $("#node-input-filedefpath").val();
-				console.log(choose);
-				if (choose == "0") {
-					console.log("FileDefPath - no");
-					$("#filepath").show();
-				} else {
-					console.log("FileDefPath - yes");
-					$("#filepath").hide();
-					$("#node-input-filepath").val("");
-				}
-			});
+			}
+			$("#node-input-filemode").change(updateFileFields);
+			updateFileFields();
 		},
 		label: function() {
 			return this.name || "take photo node";

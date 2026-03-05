@@ -2,8 +2,8 @@
   "picamera2" : {
     "label" : {
       "picamera2" : "Picamera2",
+      "autoname" : "Image Name",
       "filename" : "File Name",
-      "filedefpath" : "File default path", 
       "filepath" : "File Path", 
       "filemode" : "File Mode", 
       "resolution" : "Image Resolution", 
@@ -42,8 +42,9 @@
       "off" : "Off"
     }, 
     "placeholder" : {
+      "autoname" : "image (no extension)",
       "filename" : "Filename with extension",
-      "filepath" : "Full filepath",
+      "filepath" : "~/Pictures/",
       "brightness" : "0 to 100",
       "contrast" : "-100 to 100",
       "sharpness" : "-100 to 100",

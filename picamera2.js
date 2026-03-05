@@ -36,7 +36,7 @@ module.exports = function(RED) {
 		// set parameters and save locally
 		this.filemode = config.filemode;
 		this.filename =  config.filename;
-		this.filedefpath = config.filedefpath;
+		this.autoname = config.autoname;
 		this.filepath = config.filepath;
 		this.fileformat = config.fileformat;
 		this.resolution =  config.resolution;
@@ -89,6 +89,36 @@ module.exports = function(RED) {
 
 			node.status({fill:"blue", shape:"dot", text:"preparing..."});
 
+			// ----- Resolve file path (applies to ALL modes) -----
+			if ((msg.filepath) && (msg.filepath.trim() !== "")) {
+				filepath = msg.filepath;
+			} else {
+				if (node.filepath) {
+					filepath = node.filepath;
+				} else {
+					filepath = defdir;
+				}
+			}
+			// Ensure trailing separator
+			if (filepath && !filepath.endsWith("/")) {
+				filepath += "/";
+			}
+
+			// ----- Resolve file format -----
+			if ((msg.fileformat) && (msg.fileformat.trim() !== "")) {
+				fileformat = msg.fileformat;
+			} else {
+				if (node.fileformat) {
+					fileformat = node.fileformat;
+				} else {
+					fileformat = "png";
+				}
+			}
+
+			// Map format to file extension
+			var extMap = {"jpeg": "jpg", "png": "png", "bmp": "bmp"};
+			var ext = extMap[fileformat] || "jpg";
+
 			// Check the given filemode
 			if((msg.filemode) && (msg.filemode !== "")) {
 				filemode = msg.filemode;
@@ -96,69 +126,53 @@ module.exports = function(RED) {
 				if (node.filemode) {
 					filemode = node.filemode;
 				} else {
-					filemode = "1";
+					filemode = "2";
 				}
 			}
 
 			if (filemode == "0") {
-				// Buffered mode (old Buffermode)
-				filename = "pic_" + uuid + ".jpg";
-				fileformat = "jpeg";
-				filepath = homedir + "/";
+				// Buffered mode — capture to temp file, read into buffer, delete
+				filename = "tmp_" + uuid + "." + ext;
 				filefqn = filepath + filename;
-				if (RED.settings.verbose) { node.log("picamera2 takephoto:" + filefqn); }
-				console.log("Picamera2 (log): Tempfile - " + filefqn);
+				if (RED.settings.verbose) { node.log("picamera2 takephoto (buffer): " + filefqn); }
 
 				cl += " " + filename + " " + filepath + " " + fileformat;
 			} else if (filemode == "2") {
-				// Auto file name mode (old Generate)
-				filename = "pic_" + uuid + ".jpg";
-				fileformat = "jpeg";
-				filepath = defdir;
+				// Auto file name mode: name_timestamp.ext
+				var autoname;
+				if ((msg.autoname) && (msg.autoname.trim() !== "")) {
+					autoname = msg.autoname;
+				} else {
+					autoname = node.autoname || "image";
+				}
+				var now = new Date();
+				var timestamp = now.getFullYear()
+					+ ("0" + (now.getMonth() + 1)).slice(-2)
+					+ ("0" + now.getDate()).slice(-2)
+					+ "_"
+					+ ("0" + now.getHours()).slice(-2)
+					+ ("0" + now.getMinutes()).slice(-2)
+					+ ("0" + now.getSeconds()).slice(-2);
+				filename = autoname + "_" + timestamp + "." + ext;
 				filefqn = filepath + filename;
-				if (RED.settings.verbose) { node.log("picamera2 takephoto:" + filefqn); }
-				console.log("Picamera2 (log): Generate - " + filefqn);
+				if (RED.settings.verbose) { node.log("picamera2 takephoto (auto): " + filefqn); }
 
 				cl += " " + filename + " " + filepath + " " + fileformat;
 			} else {
-				 // Specific FileName
-				 if ((msg.filename) && (msg.filename.trim() !== "")) {
-						filename = msg.filename;
+				// Custom file name mode
+				if ((msg.filename) && (msg.filename.trim() !== "")) {
+					filename = msg.filename;
 				} else {
 					if (node.filename) {
 						filename = node.filename;
 					} else {
-						filename = "pic_" + uuid + ".jpg";
+						filename = "image_" + uuid + "." + ext;
 					}
 				}
-				cl += " " + filename;
+				filefqn = filepath + filename;
+				if (RED.settings.verbose) { node.log("picamera2 takephoto (custom): " + filefqn); }
 
-				if (node.filedefpath == "1" ) {
-					filepath = defdir;
-				} else {
-					if ((msg.filepath) && (msg.filepath.trim() !== "")) {
-						filepath = msg.filepath;
-					} else {
-						if (node.filepath) {
-							filepath = node.filepath;
-						} else {
-							filepath = defdir;
-						}
-					}
-				}
-				cl += " " + filepath;
-
-				if ((msg.fileformat) && (msg.fileformat.trim() !== "")) {
-					fileformat = msg.fileformat;
-				} else {
-					if (node.fileformat) {
-						fileformat = node.fileformat;
-					} else {
-						fileformat = "jpeg";
-					}
-				}
-				cl += " " + fileformat;
-				if (RED.settings.verbose) { node.log("picamera2 takephoto:" + filefqn); }
+				cl += " " + filename + " " + filepath + " " + fileformat;
 			}
 
 			// Resolution of the image
@@ -324,7 +338,7 @@ module.exports = function(RED) {
 
 			if (RED.settings.verbose) { node.log(cl); }
 
-			filefqn = filepath + filename;
+			// filefqn already set in mode blocks above
 
 			// Ensure output directory exists
 			try {
